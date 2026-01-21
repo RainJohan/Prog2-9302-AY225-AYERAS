@@ -1,3 +1,4 @@
+package PrelimLABWORK1;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -128,7 +129,7 @@ public class AttendanceTracker {
         JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         buttonPanel.setBackground(new Color(240, 248, 255));
         
-        submitButton = new JButton("Generate");
+        submitButton = new JButton("Log in");
         submitButton.setFont(new Font("Arial", Font.BOLD, 11));
         submitButton.setBackground(new Color(70, 130, 180));
         submitButton.setForeground(Color.BLACK);
