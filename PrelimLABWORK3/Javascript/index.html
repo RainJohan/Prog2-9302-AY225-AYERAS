@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prelim Grade Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            --accent: #93c5fd;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-700: #334155;
+            --gray-900: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        * {margin:0; padding:0; box-sizing:border-box;}
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content:'';
+            position:absolute;
+            border-radius:50%;
+            background: rgba(255,255,255,0.15);
+            animation: float 20s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        body::before { 
+            width:400px; 
+            height:400px; 
+            top:-100px; 
+            left:-100px; 
+            animation-delay:0s; 
+        }
+        
+        body::after { 
+            width:400px; 
+            height:400px; 
+            bottom:-100px; 
+            right:-100px; 
+            animation-delay:10s; 
+        }
+
+        /* Sparkles */
+        .sparkle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes float {
+            0%,100%{transform:translate(0,0) scale(1);}
+            33%{transform:translate(30px,-50px) scale(1.1);}
+            66%{transform:translate(-20px,20px) scale(0.9);}
+        }
+
+        .container { 
+            max-width:700px; 
+            width:100%; 
+            position:relative; 
+            z-index:1; 
+            animation:slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp { 
+            from{opacity:0; transform:translateY(30px);} 
+            to{opacity:1; transform:translateY(0);} 
+        }
+
+        .header{
+            text-align:center; 
+            margin-bottom:30px; 
+            animation:fadeIn 0.8s ease-out 0.2s both;
+        }
+        
+        @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+        
+        .header h1{
+            font-size:2.5rem; 
+            font-weight:700; 
+            color:white; 
+            margin-bottom:10px; 
+            letter-spacing:-0.5px; 
+            text-shadow:0 3px 15px rgba(0,0,0,0.3);
+        }
+        
+        .header p{
+            font-size:1rem; 
+            color:rgba(255,255,255,0.9); 
+            font-weight:300;
+        }
+
+        .card{
+            background:white; 
+            border-radius:24px; 
+            box-shadow:var(--shadow-xl), 0 0 0 1px rgba(0,0,0,0.05); 
+            overflow:hidden; 
+            animation:slideUp 0.6s ease-out 0.3s both;
+        }
+        
+        .card-body{padding:40px;}
+
+        .input-group{
+            margin-bottom:24px; 
+            animation:slideIn 0.4s ease-out both;
+        }
+        
+        @keyframes slideIn{
+            from{opacity:0; transform:translateX(-20px);} 
+            to{opacity:1; transform:translateX(0);}
+        }
+        
+        .input-group:nth-child(1) { animation-delay: 0.1s; }
+        .input-group:nth-child(2) { animation-delay: 0.2s; }
+        .input-group:nth-child(3) { animation-delay: 0.3s; }
+        .input-group:nth-child(4) { animation-delay: 0.4s; }
+        
+        .input-group label{
+            display:block; 
+            font-size:0.95rem; 
+            font-weight:600; 
+            color:var(--gray-700); 
+            margin-bottom:8px;
+        }
+        
+        .input-wrapper{position:relative;}
+        
+        .input-wrapper::before{
+            content:attr(data-icon); 
+            position:absolute; 
+            left:16px; 
+            top:50%; 
+            transform:translateY(-50%); 
+            font-size:1.2rem; 
+            pointer-events:none;
+            z-index: 1;
+        }
+        
+        .input-group input{
+            width:100%; 
+            padding:14px 16px 14px 48px; 
+            font-size:1rem; 
+            border:2px solid var(--gray-200); 
+            border-radius:12px; 
+            background:var(--gray-50); 
+            color:var(--gray-900); 
+            outline:none; 
+            transition:all 0.3s;
+            font-family: 'Lexend', sans-serif;
+        }
+        
+        .input-group input:focus{
+            border-color:var(--primary); 
+            background:#eff6ff; 
+            box-shadow:0 0 0 4px rgba(59,130,246,0.1);
+        }
+
+        .button-group{
+            display:flex; 
+            gap:16px; 
+            margin-top:32px;
+        }
+        
+        .btn-calculate, .btn-clear {
+            flex:1; 
+            padding:16px 24px; 
+            font-size:1.05rem; 
+            font-weight:600; 
+            border:none; 
+            border-radius:12px; 
+            cursor:pointer; 
+            transition: all 0.3s;
+            font-family: 'Lexend', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-calculate {
+            background:linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+            color:white;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-calculate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+        
+        .btn-clear{
+            background:white;
+            color:var(--danger);
+            border: 2px solid var(--danger);
+        }
+
+        .btn-clear:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-clear:active {
+            transform: translateY(0);
+        }
+
+        .results-card{
+            margin-top:24px; 
+            background:var(--gray-50); 
+            border-radius:16px; 
+            padding:0; 
+            border:2px solid var(--gray-200); 
+            max-height:0; 
+            overflow:hidden; 
+            opacity:0; 
+            transition:all 0.5s ease;
+        }
+        
+        .results-card.show{
+            max-height:2000px; 
+            opacity:1; 
+            padding:24px;
+        }
+        
+        .results-header{
+            display:flex; 
+            align-items:center; 
+            gap:8px; 
+            font-size:1.1rem; 
+            font-weight:700; 
+            color:var(--gray-900); 
+            margin-bottom:20px; 
+            padding-bottom:12px; 
+            border-bottom:2px solid var(--gray-300);
+        }
+
+        .attendance-warning {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid var(--warning);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: warningPulse 2s infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+        }
+
+        .attendance-warning-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .attendance-warning-content {
+            color: #78350f;
+            line-height: 1.6;
+        }
+
+        .attendance-warning-content strong {
+            color: #92400e;
+        }
+
+        .stat-section {
+            margin-bottom: 24px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .stat-section h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gray-200);
+            font-size: 0.95rem;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-row span:first-child {
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .stat-row span:last-child {
+            color: var(--gray-900);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .requirement-box {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--gray-300);
+            transition: all 0.3s;
+        }
+
+        .requirement-box:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .requirement-box.success {
+            border-left-color: var(--success);
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+
+        .requirement-box.warning {
+            border-left-color: var(--warning);
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        }
+
+        .requirement-box.danger {
+            border-left-color: var(--danger);
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+
+        .requirement-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .requirement-box.success .requirement-title {
+            color: #166534;
+        }
+
+        .requirement-box.warning .requirement-title {
+            color: #92400e;
+        }
+
+        .requirement-box.danger .requirement-title {
+            color: #991b1b;
+        }
+
+        .requirement-score {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+
+        .requirement-box.success .requirement-score {
+            color: var(--success);
+        }
+
+        .requirement-box.warning .requirement-score {
+            color: var(--warning);
+        }
+
+        .requirement-box.danger .requirement-score {
+            color: var(--danger);
+        }
+
+        .requirement-remark {
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            line-height: 1.5;
+        }
+
+        .final-notice {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            animation: warningPulse 2s infinite;
+        }
+
+        .final-notice-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #991b1b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .final-notice-content {
+            color: #7f1d1d;
+            line-height: 1.6;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.3s;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .modal-icon {
+            font-size: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .modal-body {
+            color: var(--gray-700);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .modal-body p {
+            margin-bottom: 8px;
+        }
+
+        .modal-body strong {
+            color: var(--gray-900);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .modal-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn.secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 2px solid var(--gray-300);
+        }
+
+        .modal-btn.secondary:hover {
+            background: var(--gray-50);
+            transform: translateY(-2px);
+        }
+
+        .excuse-input-group {
+            margin: 20px 0;
+        }
+
+        .excuse-input-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+
+        .excuse-input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            outline: none;
+            transition: all 0.3s;
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .excuse-input-group input:focus {
+            border-color: var(--primary);
+            background: #eff6ff;
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+        }
+
+        @media (max-width: 640px) {
+            .header h1 { font-size: 2rem; }
+            .card-body { padding: 24px; }
+            .button-group { flex-direction: column; }
+            .btn-calculate, .btn-clear { width: 100%; }
+            .modal-footer { flex-direction: column; }
+            .modal-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sparkles -->
+    <div class="sparkle" style="top: 10%; left: 20%;"></div>
+    <div class="sparkle" style="top: 30%; left: 80%; animation-delay: 1s;"></div>
+    <div class="sparkle" style="top: 60%; left: 15%; animation-delay: 2s;"></div>
+    <div class="sparkle" style="top: 80%; left: 70%; animation-delay: 0.5s;"></div>
+    <div class="sparkle" style="top: 45%; left: 90%; animation-delay: 1.5s;"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>📊 PRELIM GRADE CALCULATOR</h1>
+            <p>Calculate your required exam scores</p>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="input-group">
+                    <label for="attendance">👥 Number of Attendances (Max: 5)</label>
+                    <div class="input-wrapper" data-icon="👥">
+                        <input type="text" id="attendance" placeholder="Enter attendance (0-5)" maxlength="5">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="lab1">📝 Lab Work 1 Grade</label>
+                    <div class="input-wrapper" data-icon="📝">
+                        <input type="text" id="lab1" placeholder="Enter grade (0-100)" maxlength="5">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="lab2">📝 Lab Work 2 Grade</label>
+                    <div class="input-wrapper" data-icon="📝">
+                        <input type="text" id="lab2" placeholder="Enter grade (0-100)" maxlength="5">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="lab3">📝 Lab Work 3 Grade</label>
+                    <div class="input-wrapper" data-icon="📝">
+                        <input type="text" id="lab3" placeholder="Enter grade (0-100)" maxlength="5">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-calculate" onclick="calculate()">✓ Calculate</button>
+                    <button class="btn-clear" onclick="clearForm()">↻ Clear</button>
+                </div>
+
+                <div class="results-card" id="resultsCard">
+                    <div class="results-header">
+                        <span>📋</span> Results
+                    </div>
+                    <div id="resultsContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Warning Modal -->
+    <div id="attendanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-icon">⚠️</span>
+                <h2 class="modal-title">Too Many Absences - Failed</h2>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" onclick="closeModal()">OK, I Understand</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Excuse Modal -->
+    <div id="excuseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-icon">📋</span>
+                <h2 class="modal-title">Excused Absences</h2>
+            </div>
+            <div class="modal-body">
+                <p>Do you have any excused absences?</p>
+                <div class="excuse-input-group">
+                    <label for="excusedInput">Number of Excused Absences <span id="maxExcusedLabel"></span></label>
+                    <input type="text" id="excusedInput" placeholder="Enter 0 if none" value="0" maxlength="2">
+                </div>
+                <p style="font-size: 0.9rem; color: var(--gray-600);">
+                    <strong>Note:</strong> Each excused absence will count as +1 attendance for grade calculation and will not count against you.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="handleExcuseNo()">No Excused Absences</button>
+                <button class="modal-btn primary" onclick="handleExcuseYes()">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
